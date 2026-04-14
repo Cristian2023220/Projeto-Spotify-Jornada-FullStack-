@@ -3,7 +3,7 @@ import cors from "cors";
 import { database } from "./connect.js";
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 const allowedOrigins = process.env.ALLOWED_ORIGIN ? process.env.ALLOWED_ORIGIN.split(',') : ['http://localhost:5173'];
 
