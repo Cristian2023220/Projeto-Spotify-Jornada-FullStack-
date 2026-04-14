@@ -11,7 +11,6 @@ app.use(cors({
   origin: allowedOrigins,
   credentials: true
 }));
-// middleware
 
 app.get("/", (request, response) => {
   response.send('Só criamos o endpoint "/artists" até agora');
@@ -25,9 +24,8 @@ app.get("/songs", async (request, response) => {
   response.send(await database.collection("songs").find({}).toArray());
 });
 
-// POST - Criar, GET - Pegar,  PUT - Atualizar, Delete - Deletar
-// CRUD - Create Read Update Delete
-
 app.listen(PORT, () => {
   console.log(`Servidor está rodando na porta ${PORT}`);
 });
+
+export default app;
