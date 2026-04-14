@@ -1,15 +1,13 @@
 import axios from "axios";
 
-const URL = "http://localhost:3001";
+const URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
-// Fetch ou Axios
+export const fetchArtists = async () => {
+  const response = await axios.get(`${URL}/artists`);
+  return response.data;
+};
 
-const responseArtists = await axios.get(`${URL}/artists`);
-const responseSongs = await axios.get(`${URL}/songs`);
-
-export const artistArray = responseArtists.data;
-export const songsArray = responseSongs.data;
-
-console.log(artistArray);
-
-// console.log(artistArray.data);
+export const fetchSongs = async () => {
+  const response = await axios.get(`${URL}/songs`);
+  return response.data;
+};

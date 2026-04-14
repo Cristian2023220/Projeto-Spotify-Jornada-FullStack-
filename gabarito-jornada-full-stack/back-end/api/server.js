@@ -5,7 +5,12 @@ import { database } from "./connect.js";
 const app = express();
 const PORT = 3001;
 
-app.use(cors());
+const allowedOrigins = process.env.ALLOWED_ORIGIN ? process.env.ALLOWED_ORIGIN.split(',') : ['http://localhost:5173'];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
 // middleware
 
 app.get("/", (request, response) => {

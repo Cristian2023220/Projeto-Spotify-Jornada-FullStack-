@@ -1,38 +1,68 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Player from "../components/Player";
 import { Link, useParams } from "react-router-dom";
-import { songsArray } from "../assets/database/songs";
-import { artistArray } from "../assets/database/artists";
+import { fetchSongs, fetchArtists } from "../api/api";
 
 const Song = () => {
   const { id } = useParams();
-  // console.log(id);
+  const [songs, setSongs] = useState([]);
+  const [artists, setArtists] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const { image, name, duration, artist, audio } = songsArray.filter(
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [songsData, artistsData] = await Promise.all([
+          fetchSongs(),
+          fetchArtists(),
+        ]);
+        setSongs(songsData);
+        setArtists(artistsData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  const song = songs.filter(
     (currentSongObj) => currentSongObj._id === id
   )[0];
-  // console.log(songObj);
 
-  const artistObj = artistArray.filter(
+  if (!song) {
+    return <div>Song not found</div>;
+  }
+
+  const { image, name, duration, artist, audio } = song;
+
+  const artistObj = artists.filter(
     (currentArtistObj) => currentArtistObj.name === artist
   )[0];
-  // console.log(artistObj);
 
-  const songsArrayFromArtist = songsArray.filter(
+  if (!artistObj) {
+    return <div>Artist not found</div>;
+  }
+
+  const songsArrayFromArtist = songs.filter(
     (currentSongObj) => currentSongObj.artist === artist
   );
-  // console.log(songsArrayFromArtist);
 
   const randomIndex = Math.floor(
-    Math.random() * (songsArrayFromArtist.length - 1)
+    Math.random() * songsArrayFromArtist.length
   );
 
   const randomIndex2 = Math.floor(
-    Math.random() * (songsArrayFromArtist.length - 1)
+    Math.random() * songsArrayFromArtist.length
   );
 
-  const randomIdFromArtist = songsArrayFromArtist[randomIndex]._id;
-  const randomId2FromArtist = songsArrayFromArtist[randomIndex2]._id;
+  const randomIdFromArtist = songsArrayFromArtist[randomIndex]?._id;
+  const randomId2FromArtist = songsArrayFromArtist[randomIndex2]?._id;
 
   return (
     <div className="song">

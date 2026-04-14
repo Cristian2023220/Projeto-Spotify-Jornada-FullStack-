@@ -1,33 +1,56 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCirclePlay } from "@fortawesome/free-solid-svg-icons";
 import { Link, useParams } from "react-router-dom";
 import SongList from "../components/SongList";
-import { artistArray } from "../assets/database/artists";
-import { songsArray } from "../assets/database/songs";
+import { fetchArtists, fetchSongs } from "../api/api";
 
 const Artist = () => {
   const { id } = useParams();
-  // console.log(useParams());
+  const [artists, setArtists] = useState([]);
+  const [songs, setSongs] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const { name, banner } = artistArray.filter(
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [artistsData, songsData] = await Promise.all([
+          fetchArtists(),
+          fetchSongs(),
+        ]);
+        setArtists(artistsData);
+        setSongs(songsData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  const artist = artists.filter(
     (currentArtistObj) => currentArtistObj._id === id
   )[0];
 
-  const songsArrayFromArtist = songsArray.filter(
+  if (!artist) {
+    return <div>Artist not found</div>;
+  }
+
+  const { name, banner } = artist;
+
+  const songsArrayFromArtist = songs.filter(
     (currentSongObj) => currentSongObj.artist === name
   );
 
   const randomIndex = Math.floor(
-    Math.random() * (songsArrayFromArtist.length - 1)
+    Math.random() * songsArrayFromArtist.length
   );
-  const randomIdFromArtist = songsArrayFromArtist[randomIndex]._id;
-
-  // console.log(randomIdFromArtist);
-  // console.log(Math.floor(Math.random() * (songsArrayFromArtist.length - 1)));
-  // console.log("Tamanho do Array:" + songsArrayFromArtist.length);
-
-  // console.log(songsArrayFromArtist);
+  const randomIdFromArtist = songsArrayFromArtist[randomIndex]?._id;
 
   return (
     <div className="artist">
@@ -46,12 +69,14 @@ const Artist = () => {
         <SongList songsArray={songsArrayFromArtist} />
       </div>
 
-      <Link to={`/song/${randomIdFromArtist}`}>
-        <FontAwesomeIcon
-          className="single-item__icon single-item__icon--artist"
-          icon={faCirclePlay}
-        />
-      </Link>
+      {randomIdFromArtist && (
+        <Link to={`/song/${randomIdFromArtist}`}>
+          <FontAwesomeIcon
+            className="single-item__icon single-item__icon--artist"
+            icon={faCirclePlay}
+          />
+        </Link>
+      )}
     </div>
   );
 };
